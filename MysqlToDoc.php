@@ -132,6 +132,7 @@ class MysqlToDoc {
             $column['Type'],
             $column['Collation'],
             $column['Null'],
+            $column['Key'],
             $column['Default'],
             $column['Extra'],
             $column['Privileges'],
