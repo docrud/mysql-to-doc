@@ -11,7 +11,7 @@ class MysqlToDoc {
 
     /**
      * 构造函数
-     * 
+     *
      * 连接数据库
      *
      * @param string $host         数据库地址，包含端口。例：127.0.0.1:3306
@@ -36,7 +36,7 @@ class MysqlToDoc {
     /**
      * 获取数据库中所有表名和表注释
      *
-     * @return array $tables       所有表名和表注释的二位数组
+     * @return array $tables       所有表名和表注释的二维数组
      */
     private function getTables ()
     {
@@ -55,6 +55,17 @@ class MysqlToDoc {
      * @param string $tableName    指定表名
      *
      * @return array $columns      返回指定表所有字段的数组
+     *
+     * 查询结果的列名
+     * Field                       字段名称
+     * Type                        字段类型
+     * Collation                   字符集
+     * Null                        是否为可空：YES or NO
+     * Key                         索引类型：PRI = 主键，UNI = 唯一索引，MUL = 普通索引
+     * Default                     默认值
+     * Extra                       扩展信息，自增：AUTO_INCREMENT
+     * Privileges                  权限
+     * Comment                     注释
      */
     private function getColumns ($tableName)
     {
@@ -69,27 +80,27 @@ class MysqlToDoc {
     /**
      * 在实例化后直接指定此方法就能直接输出
      *
-     * @param array $template      表模板和字段模板
+     * @param array $templates     表模板和字段模板
      *
      * @return string $string      返回字符串
      */
-    public function run ($template = array())
+    public function run ($templates = array())
     {
-        $markdown = "\n\r";
-        $template = count($template) ? $template : ['table' => $this->tableTemplate(), 'column' => $this->columnTemplate()];
+        $string = "\n\r";
+        $templates = count($templates) ? $templates : ['table' => $this->tableTemplate(), 'column' => $this->columnTemplate()];
 
         $tables = $this->getTables();
         foreach ($tables as $table) {
             $columns = $this->getColumns($table['table_name']);
-            $columnMarkdown = '';
+            $columnString = '';
             foreach ($columns as $column) {
-                $columnMarkdown .= $this->replaceTemplate($column, $template['column']) . "\n\r";
+                $columnString .= $this->replaceTemplate($column, $templates['column']) . "\n\r";
             }
-            $markdown .= str_replace(['{tableName}', '{tableComment}', '{columns}'], [$table['table_name'], $table['table_comment'] ?: $table['table_name'], $columnMarkdown], $template['table']) . "\n\r\n\r";
+            $string .= str_replace(['{tableName}', '{tableComment}', '{columns}'], [$table['table_name'], $table['table_comment'] ?: $table['table_name'], $columnString], $templates['table']) . "\n\r\n\r";
         }
 
-        $markdown = str_replace("``", '', $markdown);
-        return $markdown;
+        $string = str_replace("``", '', $string);
+        return $string;
     }
 
     /**
@@ -107,21 +118,26 @@ class MysqlToDoc {
             '{type}',
             '{collation}',
             '{null}',
-            '{default}',
             '{key}',
+            '{default}',
             '{extra}',
-            '{comment}'
+            '{privileges}',
+            '{comment}',
+            '{nullName}',
+            '{keyName}',
         ];
 
         $replace = [
             $column['Field'],
             $column['Type'],
             $column['Collation'],
-            $this->getNullName($column['Null']),
+            $column['Null'],
             $column['Default'],
-            $this->getKeyName($column['Key']),
             $column['Extra'],
-            $column['Comment']
+            $column['Privileges'],
+            $column['Comment'],
+            $this->getNullName($column['Null']),
+            $this->getKeyName($column['Key']),
         ];
 
         $string = str_replace($search, $replace, $template);
@@ -181,7 +197,7 @@ class MysqlToDoc {
     /**
      * 字段参数转换
      *
-     * @param string $nul          null 参数，YES or NO
+     * @param string $null         null 参数，YES or NO
      *
      * @return string              返回空字符串或 NOT NULL
      */
