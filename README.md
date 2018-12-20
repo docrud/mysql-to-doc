@@ -6,8 +6,9 @@
 ### 表模板
 主要参数有：
 - `{tableName}` 数据表名称
-- `{tableComment}` 数据表注释
+- `{tableComment}` 数据表注释的第一行
 - `{columns}` 所有列，字段模板生成字符串后填充进来
+- `{tableCommentDetail}` 数据表注释除了第一行以外的其他行
 
 ### 字段模板
 主要参数有：
@@ -27,8 +28,8 @@
 ```php
 <?php
 $templates = [
-    'table' => '{tableName} {tableComment} {columns}',
-    'column' => '{field} {type} {collation} {null} {key} {default} {extra} {comment} {nullName} {keyName}',
+    'table' => "###{tableName} {tableComment}\r\n{columns}\r\n```\r\n{tableCommentDetail}\r\n```",
+    'column' => "`{field}` {type} {collation} {nullName} `{keyName}` {default} {extra} {comment} ",
 ];
 
 ```
@@ -44,12 +45,16 @@ $mtd = new MysqlToDoc('127.0.0.1', 'dbname', 'username', 'password');
 
 // 模板
 $templates = [
-    'table' => "{tableName} {tableComment} \r\n{columns}",
-    'column' => "{field} {type} {collation} {nullName} {keyName} {default} {extra} {comment} ",
+    'table' => "###{tableName} {tableComment}\r\n{columns}\r\n```\r\n{tableCommentDetail}\r\n```",
+    'column' => "`{field}` {type} {collation} {nullName} `{keyName}` {default} {extra} {comment} ",
 ];
 
 // 执行
 $doc = $mtd->run($templates);
+
+// 过滤掉空的信息
+$doc = str_replace("` `", '', $doc);
+$doc = str_replace("```\r\n\r\n```", '', $doc);
 
 ?>
 
@@ -58,4 +63,4 @@ $doc = $mtd->run($templates);
 ```
 
 ## 联系
-[email](chao@docrud.com)
+[E-mail](chao@docrud.com)

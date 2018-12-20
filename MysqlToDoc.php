@@ -86,7 +86,7 @@ class MysqlToDoc {
      */
     public function run ($templates = array())
     {
-        $string = "\r\n";
+        $string = '';
         $templates = count($templates) ? $templates : ['table' => $this->tableTemplate(), 'column' => $this->columnTemplate()];
 
         $tables = $this->getTables();
@@ -96,10 +96,29 @@ class MysqlToDoc {
             foreach ($columns as $column) {
                 $columnString .= $this->replaceTemplate($column, $templates['column']) . "\r\n";
             }
-            $string .= str_replace(['{tableName}', '{tableComment}', '{columns}'], [$table['table_name'], $table['table_comment'] ?: $table['table_name'], $columnString], $templates['table']) . "\r\n\r\n";
+
+            $tableName = $table['table_name'];
+            $tableComments = explode("\r\n", $table['table_comment']);
+            $tableComment = $tableComments[0] ?: $tableName;
+            array_shift($tableComments);
+            $tableCommentDetail = implode("\r\n", $tableComments);
+            $string .= str_replace(
+                [
+                    '{tableName}',
+                    '{tableComment}',
+                    '{tableCommentDetail}',
+                    '{columns}',
+                ], 
+                [
+                    $tableName,
+                    $tableComment,
+                    $tableCommentDetail,
+                    $columnString,
+                ],
+                $templates['table']
+            ) . "\r\n\r\n";
         }
 
-        $string = str_replace("``", '', $string);
         return $string;
     }
 
@@ -128,17 +147,17 @@ class MysqlToDoc {
         ];
 
         $replace = [
-            $column['Field'],
-            $column['Type'],
-            $column['Collation'],
-            $column['Null'],
-            $column['Key'],
-            $column['Default'],
-            $column['Extra'],
-            $column['Privileges'],
-            $column['Comment'],
-            $this->getNullName($column['Null']),
-            $this->getKeyName($column['Key']),
+            $column['Field'] ?: ' ',
+            $column['Type'] ?: ' ',
+            $column['Collation'] ?: ' ',
+            $column['Null'] ?: ' ',
+            $column['Key'] ?: ' ',
+            $column['Default'] ?: ' ',
+            $column['Extra'] ?: ' ',
+            $column['Privileges'] ?: ' ',
+            $column['Comment'] ?: ' ',
+            $this->getNullName($column['Null']) ?: ' ',
+            $this->getKeyName($column['Key']) ?: ' ',
         ];
 
         $string = str_replace($search, $replace, $template);
