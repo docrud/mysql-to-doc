@@ -86,7 +86,7 @@ class MysqlToDoc {
      */
     public function run ($templates = array())
     {
-        $string = "\n\r";
+        $string = "\r\n";
         $templates = count($templates) ? $templates : ['table' => $this->tableTemplate(), 'column' => $this->columnTemplate()];
 
         $tables = $this->getTables();
@@ -94,9 +94,9 @@ class MysqlToDoc {
             $columns = $this->getColumns($table['table_name']);
             $columnString = '';
             foreach ($columns as $column) {
-                $columnString .= $this->replaceTemplate($column, $templates['column']) . "\n\r";
+                $columnString .= $this->replaceTemplate($column, $templates['column']) . "\r\n";
             }
-            $string .= str_replace(['{tableName}', '{tableComment}', '{columns}'], [$table['table_name'], $table['table_comment'] ?: $table['table_name'], $columnString], $templates['table']) . "\n\r\n\r";
+            $string .= str_replace(['{tableName}', '{tableComment}', '{columns}'], [$table['table_name'], $table['table_comment'] ?: $table['table_name'], $columnString], $templates['table']) . "\r\n\r\n";
         }
 
         $string = str_replace("``", '', $string);
