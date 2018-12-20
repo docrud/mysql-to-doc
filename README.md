@@ -28,8 +28,8 @@
 ```php
 <?php
 $templates = [
-    'table' => "###{tableName} {tableComment}\r\n{columns}\r\n```\r\n{tableCommentDetail}\r\n```",
-    'column' => "`{field}` {type} {collation} {nullName} `{keyName}` {default} {extra} {comment} ",
+    'table' => "### {tableName} {tableComment}\r\n{columns}\r\n```\r\n{tableCommentDetail}\r\n```",
+    'column' => "- `{field}` {type} {collation} {nullName} `{keyName}` {default} {extra} {comment}",
 ];
 
 ```

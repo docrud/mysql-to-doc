@@ -172,7 +172,7 @@ class MysqlToDoc {
      */
     private function tableTemplate()
     {
-        return "### `{tableName}` {tableComment}\n\r{columns}";
+        return "### {tableName} {tableComment}\r\n{columns}\r\n```\r\n{tableCommentDetail}\r\n```";
     }
 
     /**
@@ -182,7 +182,7 @@ class MysqlToDoc {
      */
     private function columnTemplate ()
     {
-        return "- `{field}` {type} {collation} {null} {default} {key} {extra} {comment}";
+        return "- `{field}` {type} {collation} {nullName} `{keyName}` {default} {extra} {comment}";
     }
 
     /**
